@@ -1,0 +1,28 @@
+{
+  "eval_version": "1.0",
+  "fixture": "fixtures/synthetic_multiturn_case.json",
+  "case_id": "DEMO-CASE-001",
+  "checkpoints": {
+    "round_1": {
+      "question_key": "observed-vs-reported",
+      "required_unresolved_count": 1,
+      "can_formal_save": false,
+      "summary_contains": "only the client’s report"
+    },
+    "round_2": {
+      "question_key": "mechanism-established",
+      "supported_contains": "No direct left-right strength comparison was performed.",
+      "unknown_contains": "Why control slowed after the fourth repetition."
+    },
+    "round_3": {
+      "question_key": "retest-durability",
+      "unknown_contains": "Whether the cue-related improvement persisted in another set or longer task."
+    },
+    "round_4": {
+      "reflection_status": "complete",
+      "unresolved_question_count": 0,
+      "unknown_contains": "Longer-duration tolerance remains untested.",
+      "can_formal_save": true
+    }
+  }
+}

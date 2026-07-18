@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ObserveOS evidence-bounded analysis",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "summary",
+    "supported_findings",
+    "inferences",
+    "unknowns",
+    "next_step",
+    "reflection"
+  ],
+  "properties": {
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1800
+    },
+    "supported_findings": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["statement", "source_event_ids"],
+        "properties": {
+          "statement": {"type": "string", "minLength": 1, "maxLength": 600},
+          "source_event_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 6,
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "inferences": {
+      "type": "array",
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["statement", "reason", "uncertainty", "source_event_ids"],
+        "properties": {
+          "statement": {"type": "string", "minLength": 1, "maxLength": 600},
+          "reason": {"type": "string", "minLength": 1, "maxLength": 600},
+          "uncertainty": {"type": "string", "enum": ["low", "medium", "high"]},
+          "source_event_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 6,
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "unknowns": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {"type": "string", "minLength": 1, "maxLength": 500}
+    },
+    "next_step": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 900
+    },
+    "reflection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "questions", "completion_note"],
+      "properties": {
+        "status": {"type": "string", "enum": ["questions_ready", "complete"]},
+        "questions": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "question",
+              "why",
+              "source_anchor",
+              "source_event_ids",
+              "category",
+              "importance"
+            ],
+            "properties": {
+              "question": {"type": "string", "minLength": 1, "maxLength": 360},
+              "why": {"type": "string", "minLength": 1, "maxLength": 500},
+              "source_anchor": {"type": "string", "minLength": 1, "maxLength": 360},
+              "source_event_ids": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 4,
+                "items": {"type": "string"}
+              },
+              "category": {
+                "type": "string",
+                "enum": [
+                  "mainline",
+                  "observation",
+                  "intervention_effect",
+                  "retest",
+                  "followup",
+                  "safety",
+                  "alternative_explanation"
+                ]
+              },
+              "importance": {"type": "string", "enum": ["required", "growth"]}
+            }
+          }
+        },
+        "completion_note": {"type": "string", "maxLength": 600}
+      }
+    }
+  }
+}

@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="description" content="ObserveOS Build Week Edition: evidence-governed, multi-turn practitioner workflow demo.">
+    <title>ObserveOS — Build Week Edition</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <nav class="topbar" aria-label="Product header">
+          <a class="brand" href="/" aria-label="ObserveOS home">
+            <span class="brand-mark" aria-hidden="true">O</span>
+            <span>
+              <strong>ObserveOS</strong>
+              <small>BUILD WEEK EDITION</small>
+            </span>
+          </a>
+          <div class="status-cluster" aria-live="polite">
+            <span id="privacyStatus" class="status-pill safe">Synthetic only</span>
+            <span id="codexStatus" class="status-pill neutral">Checking Codex…</span>
+            <button id="resetButton" class="button ghost small" type="button">New demo run</button>
+          </div>
+        </nav>
+
+        <div class="hero-copy">
+          <p class="eyebrow">CASEAGENT REFLECTION LOOP</p>
+          <h1>Evidence before eloquence.</h1>
+          <p class="hero-lede">
+            One synthetic case. Multiple rounds of new information and AI response. Every source stays traceable,
+            every unknown stays unknown, and every expert correction improves the next run.
+          </p>
+          <p class="hero-zh">同一案例，多輪補資料與回覆；AI 提問不等於證據，治療師回答才可能成為證據。</p>
+        </div>
+
+        <div class="principles" aria-label="Evidence contract">
+          <div><span>01</span><strong>Source</strong><small>What was actually provided</small></div>
+          <div><span>02</span><strong>Observation</strong><small>What the practitioner recorded</small></div>
+          <div><span>03</span><strong>Inference</strong><small>Bounded, visible, never promoted</small></div>
+          <div><span>04</span><strong>Unknown</strong><small>A valid result, not a blank to fill</small></div>
+        </div>
+      </header>
+
+      <main>
+        <section class="control-deck" aria-label="Demo controls">
+          <div class="mode-picker" role="group" aria-label="Analysis mode">
+            <button id="replayMode" class="mode-button active" type="button" data-mode="replay">
+              <span>Replay</span>
+              <small>Deterministic · no model call</small>
+            </button>
+            <button id="codexMode" class="mode-button" type="button" data-mode="codex">
+              <span>Codex live</span>
+              <small>ChatGPT sign-in · GPT‑5.6</small>
+            </button>
+          </div>
+          <div class="primary-actions">
+            <button id="nextSourceButton" class="button secondary" type="button">Add next source round</button>
+            <button id="analyzeButton" class="button primary" type="button">Run evidence review</button>
+            <button id="saveButton" class="button dark" type="button">Save reviewed snapshot</button>
+          </div>
+        </section>
+
+        <section class="metric-grid" aria-label="Case metrics">
+          <article><span>Rounds</span><strong id="metricRounds">0</strong><small>same case</small></article>
+          <article><span>Sources</span><strong id="metricSources">0</strong><small>human-provided</small></article>
+          <article><span>AI responses</span><strong id="metricAnalyses">0</strong><small>never overwritten</small></article>
+          <article><span>Expert answers</span><strong id="metricAnswers">0</strong><small>with provenance</small></article>
+          <article><span>Ledger</span><strong id="metricChain">—</strong><small>hash-chain check</small></article>
+        </section>
+
+        <section class="workspace-grid">
+          <aside class="panel timeline-panel" aria-labelledby="timelineTitle">
+            <div class="panel-heading">
+              <div>
+                <p class="kicker">LOSSLESS LEDGER</p>
+                <h2 id="timelineTitle">Case timeline</h2>
+              </div>
+              <button id="exportButton" class="icon-button" type="button" aria-label="Export synthetic case JSON">↗</button>
+            </div>
+            <p id="caseIdentity" class="case-identity">Loading synthetic case…</p>
+            <div id="timeline" class="timeline" aria-live="polite"></div>
+          </aside>
+
+          <section class="panel review-panel" aria-labelledby="reviewTitle">
+            <div class="panel-heading">
+              <div>
+                <p class="kicker">CURRENT REVIEW</p>
+                <h2 id="reviewTitle">Evidence-bounded analysis</h2>
+              </div>
+              <span id="analysisBadge" class="analysis-badge waiting">Waiting for review</span>
+            </div>
+
+            <div id="emptyAnalysis" class="empty-state">
+              <div class="empty-orbit" aria-hidden="true"><span></span></div>
+              <h3>Start with what the record actually says.</h3>
+              <p>Run a replay or Codex review. New evidence will make the result stale instead of silently rewriting it.</p>
+            </div>
+
+            <div id="analysisContent" class="analysis-content hidden">
+              <section class="analysis-summary">
+                <p class="section-label">Reviewed summary</p>
+                <p id="analysisSummary"></p>
+              </section>
+              <div class="analysis-columns">
+                <section>
+                  <p class="section-label supported">Supported</p>
+                  <div id="supportedFindings" class="finding-list"></div>
+                </section>
+                <section>
+                  <p class="section-label inferred">Bounded inference</p>
+                  <div id="inferences" class="finding-list"></div>
+                </section>
+              </div>
+              <section class="unknown-section">
+                <p class="section-label unknown">Explicit unknowns</p>
+                <div id="unknowns" class="chip-list"></div>
+              </section>
+              <section class="next-step">
+                <span>Next safe step</span>
+                <p id="nextStep"></p>
+              </section>
+              <p id="engineMeta" class="engine-meta"></p>
+            </div>
+
+            <section id="reflectionCard" class="reflection-card hidden" aria-labelledby="reflectionTitle">
+              <div class="reflection-heading">
+                <span class="reflection-symbol" aria-hidden="true">?</span>
+                <div>
+                  <p class="kicker">EXPERT REFLECTION</p>
+                  <h3 id="reflectionTitle">One case-anchored question</h3>
+                </div>
+                <span id="questionImportance" class="importance-badge">growth</span>
+              </div>
+              <blockquote id="reflectionQuestion"></blockquote>
+              <p id="reflectionWhy" class="reflection-why"></p>
+              <p id="reflectionAnchor" class="source-anchor"></p>
+              <label for="reflectionAnswer">Practitioner answer</label>
+              <textarea id="reflectionAnswer" rows="3" placeholder="Record what you actually remember. ‘I don’t know’ is a valid answer."></textarea>
+              <div class="answer-actions">
+                <button id="suggestedAnswerButton" class="button ghost" type="button">Use demo answer</button>
+                <button id="unknownAnswerButton" class="button ghost" type="button">Answer as unknown</button>
+                <button id="submitAnswerButton" class="button primary" type="button">Add answer as evidence</button>
+              </div>
+            </section>
+
+            <section class="save-gate" aria-labelledby="saveGateTitle">
+              <div>
+                <p class="kicker">FORMAL-SAVE GATE</p>
+                <h3 id="saveGateTitle">The visible reviewed result is the saved result.</h3>
+              </div>
+              <div id="saveGateState" class="gate-state blocked">Blocked</div>
+              <ul id="saveBlockers"></ul>
+            </section>
+
+            <details class="source-composer">
+              <summary>Add your own synthetic source round</summary>
+              <p>Use invented information only. This demo intentionally has no connection to formal case storage.</p>
+              <div class="composer-grid">
+                <label>
+                  Source type
+                  <select id="customSourceType">
+                    <option value="client_report">Client report</option>
+                    <option value="practitioner_observation">Practitioner observation</option>
+                    <option value="transcript_excerpt">Transcript excerpt</option>
+                    <option value="intervention_retest">Intervention and retest</option>
+                    <option value="followup_message">Follow-up message</option>
+                    <option value="practitioner_note">Practitioner note</option>
+                  </select>
+                </label>
+                <label>
+                  Label
+                  <input id="customSourceLabel" type="text" maxlength="120" placeholder="Round label">
+                </label>
+              </div>
+              <label>
+                Synthetic content
+                <textarea id="customSourceContent" rows="4" maxlength="4000" placeholder="Add another piece of fictional information to the same case."></textarea>
+              </label>
+              <button id="customSourceButton" class="button secondary" type="button">Add source round</button>
+            </details>
+          </section>
+
+          <aside class="panel inspector-panel" aria-labelledby="inspectorTitle">
+            <div class="panel-heading">
+              <div>
+                <p class="kicker">PROVENANCE INSPECTOR</p>
+                <h2 id="inspectorTitle">What counts as evidence?</h2>
+              </div>
+            </div>
+            <div class="inspector-legend">
+              <span><i class="dot source"></i>Included evidence</span>
+              <span><i class="dot excluded"></i>Excluded AI prompt</span>
+            </div>
+            <div id="evidenceList" class="evidence-list"></div>
+            <div class="excluded-heading">
+              <span>AI questions excluded from evidence</span>
+              <strong id="excludedCount">0</strong>
+            </div>
+            <div id="excludedList" class="excluded-list"></div>
+          </aside>
+        </section>
+
+        <section class="system-map" aria-labelledby="systemMapTitle">
+          <div class="map-copy">
+            <p class="kicker">ONE CORE · SEPARATE TRUTH LAYERS</p>
+            <h2 id="systemMapTitle">A whole-practice operating system without one giant truth bucket.</h2>
+            <p>Each module can inform the next workflow, but case truth, session evidence, knowledge, operations, and live platform state remain separate.</p>
+          </div>
+          <div class="module-flow" aria-label="ObserveOS modules">
+            <div class="module input"><span>01</span><strong>Intake</strong><small>low-friction intent</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="module input"><span>02</span><strong>Transcription</strong><small>governed source</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="module core"><span>03</span><strong>CaseAgent Loop</strong><small>evidence + reflection</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="module output"><span>04</span><strong>Case outputs</strong><small>human confirmed</small></div>
+          </div>
+          <div class="module-satellites">
+            <span>Source-separated knowledge</span>
+            <span>StoreOps readback</span>
+            <span>Website & campaigns</span>
+            <span>Social & VoiceLab</span>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p><strong>ObserveOS Build Week Edition</strong> · Built with Codex and GPT‑5.6</p>
+        <p>Human-confirmed workflow support. Not autonomous diagnosis or medical advice.</p>
+      </footer>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="busyOverlay" class="busy-overlay hidden" aria-live="assertive">
+      <div class="spinner" aria-hidden="true"></div>
+      <p id="busyMessage">Working from the current evidence…</p>
+    </div>
+  </body>
+</html>

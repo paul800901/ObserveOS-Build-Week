@@ -1,0 +1,44 @@
+{
+  "fixture_version": "1.0",
+  "case": {
+    "case_id": "DEMO-CASE-001",
+    "display_name": "Synthetic Case A",
+    "scenario": "Step-down control review",
+    "notice": "Entirely fictional. No real person, clinic record, recording, or contact data is included."
+  },
+  "source_packets": [
+    {
+      "packet_id": "packet-01-client-report",
+      "round": 1,
+      "source_type": "client_report",
+      "label": "Client report",
+      "content": "The client reports that the step-down feels less stable than last week, especially near the end of a short set."
+    },
+    {
+      "packet_id": "packet-02-practitioner-observation",
+      "round": 2,
+      "source_type": "practitioner_observation",
+      "label": "Practitioner observation",
+      "content": "During a six-repetition step-down, control slowed after the fourth repetition. No direct left-right strength comparison was performed."
+    },
+    {
+      "packet_id": "packet-03-intervention-retest",
+      "round": 3,
+      "source_type": "intervention_retest",
+      "label": "Intervention and immediate retest",
+      "content": "After a pacing cue, the client completed three controlled repetitions. The effect was not tested in a second set."
+    },
+    {
+      "packet_id": "packet-04-followup-message",
+      "round": 4,
+      "source_type": "followup_message",
+      "label": "Next-day follow-up",
+      "content": "The next morning, the client reported no symptom flare and was able to repeat the home task once. No longer-duration test was performed."
+    }
+  ],
+  "suggested_answers": {
+    "observed-vs-reported": "At this stage it was client-reported only; no direct observation had yet been recorded.",
+    "mechanism-established": "No. I observed slower control, but I did not establish whether pain, strength, or another factor caused it.",
+    "retest-durability": "I do not know. The improvement was not tested in another set."
+  }
+}
