@@ -15,7 +15,7 @@ PATTERNS = {
     "Google-style secret": re.compile(r"AIza[A-Za-z0-9_-]{20,}"),
     "filled OPENAI_API_KEY": re.compile(r"OPENAI_API_KEY\s*=\s*\S+"),
     "embedded api_key JSON": re.compile(r"(?i)\"api_key\"\s*:\s*\"[^\"]+\""),
-    "known private mailbox": re.compile(r"(?i)(?:sl800901|observe88888)@gmail\.com"),
+    "known private mailbox shape": re.compile(r"(?i)(?:sl\d{6}|observe\d{5})@gmail\.com"),
 }
 
 
