@@ -16,10 +16,18 @@ The automated suite covers:
 - event ordering, idempotency, reset preservation, path bounds, and hash-chain tamper detection;
 - evidence projection and exclusion of AI prompts;
 - question source anchors, deduplication, leading/generic-question rejection, and explicit unknowns;
-- same-case multi-round behavior, custom synthetic rounds, stale analyses, and exact-save semantics;
+- same-case multi-round behavior, custom synthetic rounds, stale analyses, and save-without-regeneration semantics;
 - live Codex command isolation, model selection, schema normalization, and source-ID validation;
 - local HTTP routes, input bounds, export declarations, and security headers;
 - repository privacy patterns.
+
+Latest release verification on 2026-07-19:
+
+- 45 / 45 automated contract tests passed;
+- four-round synthetic gold replay completed with 7 analyses, 3 practitioner answers, and 1 formal snapshot;
+- event-ledger hash chain verified end to end;
+- privacy audit completed with 0 findings;
+- JavaScript syntax verification passed.
 
 ## Browser checks
 
@@ -47,5 +55,9 @@ Live behavior may vary by judge account entitlement and installed Codex version.
 - This is a local Build Week prototype, not a hosted multi-user system.
 - The public repository demonstrates the core reflection loop, not every private ObserveOS module.
 - Replay mode is deliberately scripted and does not infer beyond predefined or verbatim custom synthetic sources.
+- Citation validation confirms referenced evidence event IDs exist; semantic support remains human-reviewed.
+- A reflection question requires a non-empty case anchor and valid evidence IDs, but anchor-to-source semantic fit is not automatically validated.
+- Browser-added custom text is user-declared synthetic and is not automatically de-identified or content-verified.
+- The saved snapshot is not yet bound to a reviewer identity or UI-render digest.
 - The privacy audit is pattern-based and must be paired with human release review.
-- MIT licensing is selected and the YouTube demo has been read back as Public. Public Git hosting and Devpost submission still require final live readback.
+- MIT licensing is selected. The public GitHub repository, Public YouTube demo, and submitted Devpost page have been read back.

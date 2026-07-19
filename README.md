@@ -1,34 +1,35 @@
 # ObserveOS — The Self-Improving Clinic Operating System
 
-> The breakthrough was not a smarter answer. It was an AI that knew what counted as evidence—and preserved expert corrections so they could improve the next governed run.
+> The breakthrough was not a more fluent answer. It was a governed system that keeps reports, observations, inferences, and unknowns separate—and prevents stale analysis from entering the reviewed record.
 
-ObserveOS is a privacy-safe Build Week prototype of a whole-practice operating system. Its runnable core is the **CaseAgent Reflection Loop**: one synthetic case receives multiple rounds of new information and AI response, while every source, inference, unknown, expert correction, and reviewed snapshot remains traceable.
+ObserveOS is a synthetic-only Build Week prototype of a whole-practice operating system. Its runnable core is the **CaseAgent Reflection Loop**: one fictional case receives multiple rounds of new information while source roles, inferences, unknowns, practitioner answers, and analysis freshness remain traceable.
 
-“Self-improving” here is human-governed, not autonomous self-modification: practitioner corrections become traceable evidence immediately, while new rules, gold cases, and regression tests enter the formal contract only after review.
+“Self-improving” is human-governed, not autonomous self-modification. Practitioner answers and later evidence change the next governed run; proposed rules, gold cases, and regression tests enter the formal contract only after human review.
 
-The demo is intentionally narrow enough to inspect in minutes and deep enough to show the system’s governing idea: **AI output is not automatically truth**.
+The public repository is intentionally narrow enough to inspect in minutes. It implements the evidence-governance kernel built during OpenAI Build Week; the broader private ObserveOS modules provide product lineage and are not hidden judge dependencies.
 
 ## What judges can run
 
-- A polished local web app with no third-party runtime packages.
-- A four-round fictional case that behaves like a real consultation: provide information, review a response, provide more information, and review again.
-- A deterministic replay mode that works without Codex access or model cost.
-- A live GPT-5.6 mode that reuses an existing Codex **ChatGPT sign-in**—no OpenAI API key is required.
-- An append-only event ledger with a verifiable hash chain.
-- A formal-save gate that saves the exact visible reviewed result without a hidden second model call.
-- A gold evaluation and 40+ automated contract tests.
+- A local browser app with no third-party runtime packages.
+- A four-round fictional case that behaves like a real longitudinal workflow: provide information, review an analysis, add human evidence, and review again.
+- A deterministic Replay mode that works without Codex access or model cost.
+- An optional live GPT-5.6 mode that reuses an existing Codex **ChatGPT sign-in**—no OpenAI API key is required.
+- An append-only event ledger with a verifiable, tamper-evident hash chain.
+- An evidence projection that excludes AI questions and preserves practitioner-answer provenance.
+- A save gate that stores the current normalized analysis without a second model call.
+- Forty-five automated tests, a four-round gold replay, a privacy audit, and JavaScript syntax verification.
 
 ## 90-second judge route
 
 1. Start the app with `START_DEMO.cmd` on Windows, or run `python app.py --open-browser`.
 2. Leave **Replay** selected and choose **Run evidence replay**.
-3. Notice that the first response distinguishes a client report from a practitioner observation and asks one source-anchored question.
-4. Choose **Use demo answer**, then **Add answer as evidence**.
-5. The visible analysis becomes stale. Run the replay again.
-6. Choose **Add round 2: Practitioner observation**, then run the replay again.
-7. Repeat through the intervention/retest and next-day follow-up rounds.
-8. Inspect **What counts as evidence?** The AI’s questions remain excluded; practitioner answers have provenance.
-9. Save the reviewed snapshot only when the gate is ready.
+3. In the deterministic replay, notice that the initial client report remains a report rather than being silently upgraded into a practitioner observation.
+4. Inspect the bounded reflection question: it cites existing evidence events, but the question itself remains outside evidence.
+5. Choose **Use demo answer**, then **Add answer as evidence**.
+6. The previous analysis becomes stale. Run Replay again.
+7. Continue through the practitioner observation, intervention/retest, and next-day follow-up rounds.
+8. Inspect **What counts as evidence?** AI questions remain excluded; practitioner answers retain provenance.
+9. Save the current analysis only when the gate is ready. Saving does not trigger another model call.
 
 To test the live route, sign into Codex once with `codex login`, select **Codex live**, and run the same workflow. The app checks the existing Codex login; it never asks for or stores an API key.
 
@@ -43,31 +44,37 @@ To test the live route, sign into Codex once with `codex login`, select **Codex 
 | AI question | A recall or reflection prompt | No; interaction history only |
 | Practitioner answer | The expert’s response to a question | Yes, as new evidence |
 
+Supported findings and inferences must cite existing evidence event IDs. Citation validation confirms that the referenced IDs exist; semantic support remains human-reviewed. A reflection question may guide recall, but it stays in interaction history and never enters the evidence projection. When new source material or a practitioner answer arrives, the prior analysis becomes stale. The save gate stores the current normalized analysis without a second model call.
+
 ```mermaid
 flowchart LR
     A["New source round"] --> B["Append-only case ledger"]
     B --> C["Evidence-only projection"]
     C --> D["Replay or GPT-5.6 review"]
     D --> E["Supported / inferred / unknown"]
-    E --> F["One source-anchored question"]
-    F -->|"AI prompt: excluded"| B
-    F -->|"Expert answer: evidence"| B
+    E --> F["One bounded, evidence-citing question"]
+    F -->|"AI question: excluded"| B
+    F -->|"Practitioner answer: evidence"| B
     B --> G["Stale-result gate"]
     G --> D
-    E --> H["Exact reviewed snapshot"]
+    E --> H["Current analysis snapshot"]
 ```
 
 The detailed contract is in [docs/EVIDENCE_CONTRACT.md](docs/EVIDENCE_CONTRACT.md).
 
 ## Why GPT-5.6 mattered
 
-Earlier work could produce strong bounded outputs when the prompt and source set were already clean. The qualitative shift in this project was architectural: GPT-5.6 helped turn expert corrections into explicit evidence categories, save gates, gold cases, and regression tests. The model was no longer only producing answers; it helped build the mechanism that decides what an answer is allowed to claim.
+Earlier work could produce strong bounded outputs when the source set and prompt were already clean. The qualitative shift was architectural: GPT-5.6 helped turn recurring failure modes and practitioner feedback into explicit evidence categories, save gates, gold-case expectations, and human-reviewed regression tests.
+
+During Build Week, Codex and GPT-5.6 were used to extract that governing idea from the broader private workflow and build a new, independently runnable public kernel: the local app, event model, evidence projection, Replay/Codex paths, schema gates, synthetic gold evaluation, and release checks.
 
 The development contribution and verifiable Build Week session evidence are described in [docs/BUILD_WEEK_EVIDENCE.md](docs/BUILD_WEEK_EVIDENCE.md).
 
 ## Whole-system vision, separate truth layers
 
 ObserveOS can coordinate intake, governed transcription, case reasoning, source-separated knowledge, operations readback, websites and campaigns, and content production. It does **not** merge them into one giant truth bucket. Each domain keeps its own formal source and confirmation boundary; the public prototype implements the reflection loop that governs how evidence crosses into a case output.
+
+The broader private CaseAgent workflow also maintains clinical decision logic base v3.5.1, a versioned and practitioner-authored system of support, weakening, falsification, retest, and safety conditions. It is an existing, evolving capability. The public kernel does not publish those proprietary clinical rules; it demonstrates the boundary that prevents expert knowledge from silently becoming case evidence.
 
 See [docs/PRODUCT_LINEAGE.md](docs/PRODUCT_LINEAGE.md) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -121,9 +128,9 @@ On Windows, `RUN_TESTS.ps1` runs the complete verification set. Results and know
 
 ## Privacy and scope
 
-The repository contains one fictional scenario. It contains no real case, recording, contact, mailbox, operations database, credential, or private source path. Custom entries in the browser are labeled synthetic and remain local. Read [docs/PRIVACY_REVIEW.md](docs/PRIVACY_REVIEW.md) before publishing any derivative.
+The repository ships with one verified fictional fixture and contains no real case, recording, contact, operations database, credential, or private source path. Browser-added custom text must also be synthetic, but it is user-declared and is not automatically de-identified or content-verified.
 
-This prototype supports human review; it is not autonomous diagnosis or medical advice.
+The privacy audit is pattern-based and is paired with human release review. This prototype supports human review; it is local and single-process, not autonomous diagnosis or medical advice. Read [docs/PRIVACY_REVIEW.md](docs/PRIVACY_REVIEW.md) before publishing any derivative.
 
 ## Build Week
 

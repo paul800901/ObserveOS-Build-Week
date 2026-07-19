@@ -27,6 +27,8 @@
 - Runtime history is ignored by Git.
 - The export manifest declares `synthetic_only: true` and reports hash-chain verification.
 
+The shipped fixture is verified fictional. Browser-added custom text must also be synthetic, but that status is user-declared; the application does not automatically de-identify or content-verify custom input.
+
 ## Release check
 
 Run:
@@ -35,6 +37,6 @@ Run:
 python scripts/privacy_audit.py
 ```
 
-The audit searches text files for common private Windows paths, secret formats, filled API-key assignments, secret-bearing environment files, and known private mailbox patterns. It is a useful release gate, not a substitute for human review.
+The audit searches text files for common private Windows paths, secret formats, filled API-key assignments, secret-bearing environment files, and generalized private-mailbox shapes. It is a useful release gate, not a substitute for human review.
 
 Before publication, a human must still inspect the repository diff, demo recording, Git metadata, and upload form.
