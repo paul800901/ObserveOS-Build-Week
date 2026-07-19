@@ -1,0 +1,30 @@
+{
+  "fixture_version": "1.0",
+  "replay_profile": "inference_revision_v1",
+  "case": {
+    "case_id": "DEMO-CASE-003",
+    "display_name": "Synthetic Case C",
+    "scenario": "Later evidence weakens an earlier inference",
+    "notice": "Entirely fictional. No real person, clinic record, recording, or contact data is included."
+  },
+  "source_packets": [
+    {
+      "packet_id": "packet-01-immediate-response",
+      "round": 1,
+      "source_type": "intervention_retest",
+      "label": "Immediate response",
+      "content": "After a pacing cue, the practitioner recorded three smoother repetitions than the preceding three. No repeat set was performed at that time."
+    },
+    {
+      "packet_id": "packet-02-later-retest",
+      "round": 2,
+      "source_type": "intervention_retest",
+      "label": "Later retest",
+      "content": "In a later set under the same cue, the smoother pattern did not repeat and two pauses were recorded. No reason for the difference was tested."
+    }
+  ],
+  "suggested_answers": {
+    "repeat-test-recorded": "No. It was an immediate within-session observation only, and no repeat set had yet been performed.",
+    "between-set-change": "No other between-set change was recorded. The reason for the difference remains unknown."
+  }
+}

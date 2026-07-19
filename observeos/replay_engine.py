@@ -27,7 +27,7 @@ def _answer_events(events: list[dict[str, object]]) -> dict[str, dict[str, objec
     return result
 
 
-def run_replay(
+def _run_step_down_replay(
     events: list[dict[str, object]],
     fixture: dict[str, Any],
 ) -> dict[str, object]:
@@ -239,6 +239,264 @@ def run_replay(
         "safety_flags": flags,
         "engine": {"mode": "replay", "model": "deterministic synthetic replay"},
     }
+
+
+def _run_source_conflict_replay(
+    events: list[dict[str, object]],
+    fixture: dict[str, Any],
+) -> dict[str, object]:
+    sources = _source_events(events)
+    answers = _answer_events(events)
+    evidence = evidence_items(events)
+    valid_source_ids = {str(item["evidence_id"]) for item in evidence}
+    answered_ids = answered_question_ids(events)
+    report = sources.get("packet-01-perceived-effort")
+    observation = sources.get("packet-02-observed-contacts")
+
+    supported: list[dict[str, object]] = []
+    inferences: list[dict[str, object]] = []
+    unknowns: list[str] = []
+    raw_questions: list[dict[str, object]] = []
+
+    if report:
+        supported.append(
+            {
+                "statement": "The client reported that perceived effort felt unchanged during the task.",
+                "source_event_ids": [str(report["event_id"])],
+            }
+        )
+    if observation:
+        supported.append(
+            {
+                "statement": "The practitioner recorded two hand contacts during the final three repetitions.",
+                "source_event_ids": [str(observation["event_id"])],
+            }
+        )
+        inferences.append(
+            {
+                "statement": "The apparent tension may reflect two different dimensions rather than an inaccurate source.",
+                "reason": "Perceived effort and observed hand contacts are not interchangeable measurements.",
+                "uncertainty": "high",
+                "source_event_ids": [str(report["event_id"]), str(observation["event_id"])] if report else [str(observation["event_id"])],
+            }
+        )
+
+    for answer in answers.values():
+        payload = answer.get("payload") or {}
+        supported.append(
+            {
+                "statement": f"Practitioner adjudication: {str(payload.get('answer') or '')}",
+                "source_event_ids": [str(answer["event_id"])],
+            }
+        )
+
+    report_question_id = question_id("report-dimension")
+    conflict_question_id = question_id("conflict-interpretation")
+    if report and report_question_id not in answered_ids:
+        unknowns.append("Whether the client report referred to effort, symptoms, or observed task performance.")
+        raw_questions.append(
+            {
+                "key": "report-dimension",
+                "question": "Was the client’s statement about perceived effort, symptoms, or observed task performance?",
+                "why": "The report must stay within the dimension the client actually described.",
+                "source_anchor": "perceived effort felt unchanged",
+                "source_event_ids": [str(report["event_id"])],
+                "category": "observation",
+                "importance": "required",
+            }
+        )
+    elif observation and conflict_question_id not in answered_ids:
+        unknowns.extend(
+            [
+                "Whether unchanged perceived effort and the observed hand contacts describe the same dimension.",
+                "Why the two hand contacts occurred; no cause assessment was recorded.",
+            ]
+        )
+        raw_questions.append(
+            {
+                "key": "conflict-interpretation",
+                "question": "Should the client’s unchanged perceived effort be treated as contradicting the recorded hand contacts, or do they describe different dimensions?",
+                "why": "A human decision is required before labeling two differently sourced statements as a contradiction.",
+                "source_anchor": "perceived effort felt unchanged; two hand contacts",
+                "source_event_ids": [str(report["event_id"]), str(observation["event_id"])] if report else [str(observation["event_id"])],
+                "category": "alternative_explanation",
+                "importance": "required",
+            }
+        )
+    elif observation:
+        unknowns.append("Why the two hand contacts occurred; no cause assessment was recorded.")
+
+    questions, flags = normalize_questions(
+        raw_questions,
+        valid_source_ids=valid_source_ids,
+        answered_ids=answered_ids,
+        max_questions=1,
+    )
+    if observation:
+        summary = (
+            "The record preserves two different source claims: unchanged perceived effort and two observed hand contacts. "
+            "It does not silently merge them, choose one as more truthful, or call them contradictory without practitioner adjudication."
+        )
+        next_step = "Keep perceived effort and observed performance separate; retain the untested cause as an explicit unknown."
+    else:
+        summary = (
+            "The current record contains only a client report that perceived effort felt unchanged. "
+            "It does not establish symptoms or directly observed task performance."
+        )
+        next_step = "Clarify which dimension the report described before comparing it with any later observation."
+
+    return {
+        "summary": summary,
+        "supported_findings": supported,
+        "inferences": inferences,
+        "unknowns": unknowns,
+        "next_step": next_step,
+        "reflection": {
+            "status": "questions_ready" if questions else "complete",
+            "questions": questions,
+            "completion_note": "The source-role conflict has been adjudicated without collapsing the two claims." if not questions else "",
+        },
+        "safety_flags": flags,
+        "engine": {"mode": "replay", "model": "deterministic synthetic replay · source conflict profile"},
+    }
+
+
+def _run_inference_revision_replay(
+    events: list[dict[str, object]],
+    fixture: dict[str, Any],
+) -> dict[str, object]:
+    sources = _source_events(events)
+    answers = _answer_events(events)
+    evidence = evidence_items(events)
+    valid_source_ids = {str(item["evidence_id"]) for item in evidence}
+    answered_ids = answered_question_ids(events)
+    immediate = sources.get("packet-01-immediate-response")
+    later = sources.get("packet-02-later-retest")
+
+    supported: list[dict[str, object]] = []
+    inferences: list[dict[str, object]] = []
+    unknowns: list[str] = []
+    raw_questions: list[dict[str, object]] = []
+
+    if immediate:
+        supported.append(
+            {
+                "statement": "Three smoother repetitions were recorded immediately after a pacing cue; no repeat set was performed at that time.",
+                "source_event_ids": [str(immediate["event_id"])],
+            }
+        )
+    if later:
+        supported.append(
+            {
+                "statement": "In a later set under the same cue, the smoother pattern did not repeat and two pauses were recorded.",
+                "source_event_ids": [str(later["event_id"])],
+            }
+        )
+        inferences.append(
+            {
+                "statement": "The later non-replication weakens the earlier inference that the cue reliably improved performance.",
+                "reason": "The later set supplied direct counter-evidence under the same recorded cue.",
+                "uncertainty": "medium",
+                "source_event_ids": [str(immediate["event_id"]), str(later["event_id"])] if immediate else [str(later["event_id"])],
+            }
+        )
+    elif immediate:
+        inferences.append(
+            {
+                "statement": "The pacing cue may have been associated with an immediate performance change, but reliability is not established.",
+                "reason": "Only one short, immediate response was recorded and no repeat set was performed.",
+                "uncertainty": "high",
+                "source_event_ids": [str(immediate["event_id"])],
+            }
+        )
+
+    for answer in answers.values():
+        payload = answer.get("payload") or {}
+        supported.append(
+            {
+                "statement": f"Practitioner adjudication: {str(payload.get('answer') or '')}",
+                "source_event_ids": [str(answer["event_id"])],
+            }
+        )
+
+    repeat_question_id = question_id("repeat-test-recorded")
+    change_question_id = question_id("between-set-change")
+    if immediate and not later and repeat_question_id not in answered_ids:
+        unknowns.append("Whether the immediate response would repeat in another set.")
+        raw_questions.append(
+            {
+                "key": "repeat-test-recorded",
+                "question": "Was the immediate response repeated in another set before drawing a conclusion about the cue?",
+                "why": "A repeat test determines whether the first response can support more than a tentative inference.",
+                "source_anchor": "no repeat set was performed",
+                "source_event_ids": [str(immediate["event_id"])],
+                "category": "retest",
+                "importance": "required",
+            }
+        )
+    elif later and change_question_id not in answered_ids:
+        unknowns.append("Why the later set differed; no between-set cause was tested.")
+        raw_questions.append(
+            {
+                "key": "between-set-change",
+                "question": "Was any other between-set change recorded that could explain why the smoother pattern did not repeat?",
+                "why": "The later evidence weakens the first inference, but it does not by itself establish a cause for the difference.",
+                "source_anchor": "the smoother pattern did not repeat",
+                "source_event_ids": [str(immediate["event_id"]), str(later["event_id"])] if immediate else [str(later["event_id"])],
+                "category": "alternative_explanation",
+                "importance": "required",
+            }
+        )
+    elif later:
+        unknowns.append("Why the later set differed; no between-set cause was tested.")
+
+    questions, flags = normalize_questions(
+        raw_questions,
+        valid_source_ids=valid_source_ids,
+        answered_ids=answered_ids,
+        max_questions=1,
+    )
+    if later:
+        summary = (
+            "Later evidence weakens the earlier bounded inference: the immediate smoother pattern did not repeat under the same cue. "
+            "Both analyses remain in the append-only ledger, while only the evidence-current review can pass the save gate."
+        )
+        next_step = "Retain the non-replication and leave its cause unknown unless a recorded comparison addresses it."
+    else:
+        summary = (
+            "The record supports a short immediate response after a pacing cue, but the response was not repeated. "
+            "Any claim about a reliable cue effect remains tentative."
+        )
+        next_step = "Require a recorded repeat test before strengthening the cue-effect inference."
+
+    return {
+        "summary": summary,
+        "supported_findings": supported,
+        "inferences": inferences,
+        "unknowns": unknowns,
+        "next_step": next_step,
+        "reflection": {
+            "status": "questions_ready" if questions else "complete",
+            "questions": questions,
+            "completion_note": "The later evidence has been incorporated and the untested cause remains explicit." if not questions else "",
+        },
+        "safety_flags": flags,
+        "engine": {"mode": "replay", "model": "deterministic synthetic replay · inference revision profile"},
+    }
+
+
+def run_replay(
+    events: list[dict[str, object]],
+    fixture: dict[str, Any],
+) -> dict[str, object]:
+    """Deterministic, model-free replay for judges without Codex access."""
+
+    profile = str(fixture.get("replay_profile") or "step_down_control_v1")
+    if profile == "source_conflict_v1":
+        return _run_source_conflict_replay(events, fixture)
+    if profile == "inference_revision_v1":
+        return _run_inference_revision_replay(events, fixture)
+    return _run_step_down_replay(events, fixture)
 
 
 __all__ = ["run_replay"]

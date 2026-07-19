@@ -119,7 +119,7 @@ function eventPresentation(event) {
     analysis_generated: ["analysis", `${payload.mode || "AI"} evidence review`, payload.output?.summary || "A new reviewed response was added."],
     reflection_question_asked: ["analysis", "AI reflection prompt", payload.question || "Question asked"],
     reflection_answered: ["answer", "Practitioner answer", payload.answer || "Answer added"],
-    formal_snapshot_saved: ["snapshot", "Reviewed snapshot saved", payload.save_behavior || "Exact visible result preserved"],
+    formal_snapshot_saved: ["snapshot", "Reviewed snapshot saved", payload.save_behavior || "Current normalized analysis preserved"],
   };
   return mapping[event.event_type] || ["", event.event_type, "Event recorded"];
 }
@@ -232,7 +232,7 @@ function renderSaveGate() {
   list.replaceChildren();
   const blockers = state.case?.save_blockers || [];
   if (ready) {
-    list.append(element("li", "", "The current visible result can be saved without another model call."));
+    list.append(element("li", "", "The current normalized analysis can be saved without another model call."));
   } else {
     for (const blocker of blockers) list.append(element("li", "", blocker));
   }
@@ -265,6 +265,45 @@ function renderEvidence() {
   if (!excludedList.childElementCount) excludedList.append(element("p", "empty-list", "No AI reflection prompt has been recorded yet."));
 }
 
+function renderJudgeTour() {
+  const project = state.case;
+  if (!project) return;
+  const events = [...(project.events || [])].sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0));
+  let analysisSeen = false;
+  let staleTransitionSeen = false;
+  for (const event of events) {
+    if (event.event_type === "analysis_generated") analysisSeen = true;
+    if (analysisSeen && ["source_added", "reflection_answered"].includes(event.event_type)) staleTransitionSeen = true;
+  }
+  const steps = {
+    review: Number(project.stats?.analysis_events || 0) > 0,
+    answer: Number(project.stats?.practitioner_answers || 0) > 0 && Number(project.excluded_questions?.length || 0) > 0,
+    stale: staleTransitionSeen,
+    rounds: Number(project.round || 0) >= 4 && Boolean(project.all_fixture_packets_added)
+      && !project.analysis_stale && Number(project.unresolved_questions?.length || 0) === 0,
+    save: Number(project.stats?.formal_snapshots || 0) > 0,
+  };
+  const nextSteps = {
+    review: "Next: leave Replay selected and click Run evidence replay.",
+    answer: "Next: use the demo answer, then add it as practitioner evidence.",
+    stale: "Next: notice that the prior analysis is now stale; run Replay again.",
+    rounds: "Next: add each source round, answer only what is known, and rerun Replay.",
+    save: "Next: when the gate is ready, save the current normalized analysis.",
+  };
+  let completed = 0;
+  let next = "Tour complete: all five evidence-governance checks are visible in this preserved run.";
+  for (const [key, done] of Object.entries(steps)) {
+    const item = document.querySelector(`[data-tour-step="${key}"]`);
+    item.classList.toggle("complete", done);
+    item.setAttribute("aria-label", `${done ? "Verified" : "Not yet verified"}: ${item.querySelector("strong").textContent}`);
+    if (done) completed += 1;
+    else if (next.startsWith("Tour complete")) next = nextSteps[key];
+  }
+  $("#tourProgress").textContent = `${completed} / 5 verified`;
+  $("#tourProgress").classList.toggle("complete", completed === 5);
+  $("#tourNextStep").textContent = next;
+}
+
 function render() {
   renderStatus();
   renderControls();
@@ -275,6 +314,7 @@ function render() {
   renderReflection();
   renderSaveGate();
   renderEvidence();
+  renderJudgeTour();
 }
 
 async function refresh() {
@@ -300,6 +340,9 @@ async function postAction(path, body, busyMessage) {
 }
 
 function bindEvents() {
+  $("#tourButton").addEventListener("click", () => {
+    $("#judgeTour").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   $("#replayMode").addEventListener("click", () => {
     state.mode = "replay";
     renderControls();
@@ -315,7 +358,7 @@ function bindEvents() {
     "/api/analyze", { mode: state.mode }, state.mode === "codex" ? "GPT‑5.6 is reviewing only the current evidence…" : "Replaying the evidence contract…",
   ));
   $("#saveButton").addEventListener("click", () => postAction(
-    "/api/formal-save", {}, "Saving the exact visible reviewed result…",
+    "/api/formal-save", {}, "Saving the current normalized analysis…",
   ));
   $("#resetButton").addEventListener("click", () => {
     if (window.confirm("Create a new synthetic demo run? Earlier synthetic runs will be preserved.")) {

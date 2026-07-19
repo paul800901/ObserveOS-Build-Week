@@ -25,7 +25,9 @@ Codex and GPT-5.6 were used to:
 4. implement the local service, browser interface, deterministic replay, and live Codex route;
 5. build JSON-schema, source-ID validation, and bounded-question gates around model output;
 6. turn failure modes into tests, a gold evaluation, and a privacy audit;
-7. verify the real browser workflow and ChatGPT-authenticated Codex path.
+7. add two public fictional conformance cases for source-role conflict and later-evidence inference revision;
+8. build a visible Judge Tour whose progress is derived from real ledger state;
+9. verify the real browser workflow and ChatGPT-authenticated Codex path.
 
 ## Development model versus runtime model
 
@@ -42,6 +44,8 @@ The strongest proof is not a screenshot of a model name. It is the repository’
 - `tests/test_codex_runner.py` verifies the model command and failure boundaries.
 - `evals/gold/synthetic_multiturn_gold.json` defines expected multi-round behavior.
 - `scripts/run_gold_eval.py` replays that behavior from a clean temporary store.
+- `evals/gold/synthetic_source_conflict_gold.json` and `evals/gold/synthetic_inference_revision_gold.json` define two additional public-safe governance transitions.
+- `scripts/run_governance_corpus.py` replays all three fictional cases and verifies their independent event chains and save-without-regeneration gates.
 - `scripts/privacy_audit.py` checks the public tree for common secret and private-path patterns.
 
 ## Submission asset status

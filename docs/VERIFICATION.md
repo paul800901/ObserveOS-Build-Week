@@ -7,6 +7,7 @@ Run from the repository root:
 ```bash
 python -m unittest discover -s tests -p "test_*.py" -v
 python scripts/run_gold_eval.py
+python scripts/run_governance_corpus.py
 python scripts/privacy_audit.py
 node --check web/app.js
 ```
@@ -21,10 +22,12 @@ The automated suite covers:
 - local HTTP routes, input bounds, export declarations, and security headers;
 - repository privacy patterns.
 
-Latest release verification on 2026-07-19:
+Latest local candidate verification on 2026-07-20:
 
-- 45 / 45 automated contract tests passed;
+- 47 / 47 automated contract tests passed;
 - four-round synthetic gold replay completed with 7 analyses, 3 practitioner answers, and 1 formal snapshot;
+- three-case synthetic governance corpus completed with 8 rounds, 15 analyses, 7 practitioner answers, and 3 formal snapshots;
+- report-versus-observation separation and later-evidence inference revision both passed as focused conformance cases;
 - event-ledger hash chain verified end to end;
 - privacy audit completed with 0 findings;
 - JavaScript syntax verification passed.
@@ -42,7 +45,8 @@ The verified judge path covered:
 7. adding the second source round to the same case;
 8. rerunning and receiving the mechanism question;
 9. checking desktop and 390 × 844 responsive layouts;
-10. checking browser warnings and errors.
+10. opening the 90-second Judge Tour and confirming progress changed from 0 / 5 to 1 / 5 after the first real Replay event;
+11. checking browser warnings and errors.
 
 ## Live Codex smoke check
 
@@ -55,6 +59,7 @@ Live behavior may vary by judge account entitlement and installed Codex version.
 - This is a local Build Week prototype, not a hosted multi-user system.
 - The public repository demonstrates the core reflection loop, not every private ObserveOS module.
 - Replay mode is deliberately scripted and does not infer beyond predefined or verbatim custom synthetic sources.
+- The browser Judge Tour exposes the full longitudinal case; the two focused conformance cases run through the command-line corpus evaluator.
 - Citation validation confirms referenced evidence event IDs exist; semantic support remains human-reviewed.
 - A reflection question requires a non-empty case anchor and valid evidence IDs, but anchor-to-source semantic fit is not automatically validated.
 - Browser-added custom text is user-declared synthetic and is not automatically de-identified or content-verified.

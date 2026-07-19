@@ -84,7 +84,10 @@ class HttpContractTests(unittest.TestCase):
         with urllib.request.urlopen(self.base + "/", timeout=5) as response:
             self.assertEqual("DENY", response.headers["X-Frame-Options"])
             self.assertIn("default-src 'self'", response.headers["Content-Security-Policy"])
-            self.assertIn(b"Evidence before eloquence", response.read())
+            body = response.read()
+            self.assertIn(b"Evidence before eloquence", body)
+            self.assertIn(b"90-second judge tour", body)
+            self.assertIn(b"run_governance_corpus.py", body)
 
     def test_api_export_declares_no_real_person_data(self) -> None:
         _, payload = self._get("/api/export")

@@ -1,0 +1,23 @@
+{
+  "eval_version": "1.0",
+  "fixture": "fixtures/synthetic_inference_revision_case.json",
+  "case_id": "DEMO-CASE-003",
+  "checkpoints": {
+    "round_1": {
+      "question_key": "repeat-test-recorded",
+      "inference_contains": "reliability is not established",
+      "unknown_contains": "Whether the immediate response would repeat in another set."
+    },
+    "round_2": {
+      "question_key": "between-set-change",
+      "summary_contains": "Later evidence weakens the earlier bounded inference",
+      "supported_contains": "did not repeat",
+      "inference_contains": "weakens the earlier inference",
+      "unknown_contains": "Why the later set differed"
+    },
+    "final": {
+      "reflection_status": "complete",
+      "can_formal_save": true
+    }
+  }
+}

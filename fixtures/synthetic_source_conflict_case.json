@@ -1,0 +1,30 @@
+{
+  "fixture_version": "1.0",
+  "replay_profile": "source_conflict_v1",
+  "case": {
+    "case_id": "DEMO-CASE-002",
+    "display_name": "Synthetic Case B",
+    "scenario": "Report and observation stay separate",
+    "notice": "Entirely fictional. No real person, clinic record, recording, or contact data is included."
+  },
+  "source_packets": [
+    {
+      "packet_id": "packet-01-perceived-effort",
+      "round": 1,
+      "source_type": "client_report",
+      "label": "Client report",
+      "content": "The client reported that perceived effort felt unchanged during a short balance task. The report did not specify symptoms or observed performance."
+    },
+    {
+      "packet_id": "packet-02-observed-contacts",
+      "round": 2,
+      "source_type": "practitioner_observation",
+      "label": "Practitioner observation",
+      "content": "In the same fictional session, the practitioner recorded two hand contacts during the final three repetitions. No symptom or cause assessment was performed."
+    }
+  ],
+  "suggested_answers": {
+    "report-dimension": "The client was describing perceived effort only, not symptoms or observed task performance.",
+    "conflict-interpretation": "They describe different dimensions. Preserve both statements without treating either one as inaccurate."
+  }
+}

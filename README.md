@@ -12,17 +12,18 @@ The public repository is intentionally narrow enough to inspect in minutes. It i
 
 - A local browser app with no third-party runtime packages.
 - A four-round fictional case that behaves like a real longitudinal workflow: provide information, review an analysis, add human evidence, and review again.
+- A three-case deterministic governance corpus: the longitudinal workflow, a report-versus-observation conflict, and later evidence that weakens an earlier inference.
 - A deterministic Replay mode that works without Codex access or model cost.
 - An optional live GPT-5.6 mode that reuses an existing Codex **ChatGPT sign-in**—no OpenAI API key is required.
 - An append-only event ledger with a verifiable, tamper-evident hash chain.
 - An evidence projection that excludes AI questions and preserves practitioner-answer provenance.
 - A save gate that stores the current normalized analysis without a second model call.
-- Forty-five automated tests, a four-round gold replay, a privacy audit, and JavaScript syntax verification.
+- Forty-seven automated tests, a four-round gold replay, a three-case governance corpus, a privacy audit, and JavaScript syntax verification.
 
 ## 90-second judge route
 
 1. Start the app with `START_DEMO.cmd` on Windows, or run `python app.py --open-browser`.
-2. Leave **Replay** selected and choose **Run evidence replay**.
+2. Choose **90-second judge tour**. Leave **Replay** selected and choose **Run evidence replay**.
 3. In the deterministic replay, notice that the initial client report remains a report rather than being silently upgraded into a practitioner observation.
 4. Inspect the bounded reflection question: it cites existing evidence events, but the question itself remains outside evidence.
 5. Choose **Use demo answer**, then **Add answer as evidence**.
@@ -32,6 +33,21 @@ The public repository is intentionally narrow enough to inspect in minutes. It i
 9. Save the current analysis only when the gate is ready. Saving does not trigger another model call.
 
 To test the live route, sign into Codex once with `codex login`, select **Codex live**, and run the same workflow. The app checks the existing Codex login; it never asks for or stores an API key.
+
+## Three-case synthetic governance corpus
+
+The browser tour uses the full four-round case. Two additional, fully fictional conformance cases make the hardest governance transitions directly testable without exposing private case material:
+
+- **Source-role conflict:** a client report and practitioner observation appear to disagree, but remain separate until practitioner adjudication.
+- **Inference revision:** a short immediate response supports only a tentative inference; later non-replication makes the earlier review stale and weakens that inference.
+
+Run all three cases with no account, model call, or package install:
+
+```bash
+python scripts/run_governance_corpus.py
+```
+
+The deterministic result is 3 cases, 8 source rounds, 15 analyses, 7 practitioner answers, 3 current-analysis snapshots saved without regeneration, and 3 verified event chains. See [docs/JUDGE_TOUR.md](docs/JUDGE_TOUR.md) for the shortest review path.
 
 ## Evidence contract
 
@@ -120,6 +136,7 @@ Official references: [Codex authentication](https://learn.chatgpt.com/docs/auth.
 ```bash
 python -m unittest discover -s tests -p "test_*.py" -v
 python scripts/run_gold_eval.py
+python scripts/run_governance_corpus.py
 python scripts/privacy_audit.py
 node --check web/app.js
 ```
@@ -128,7 +145,7 @@ On Windows, `RUN_TESTS.ps1` runs the complete verification set. Results and know
 
 ## Privacy and scope
 
-The repository ships with one verified fictional fixture and contains no real case, recording, contact, operations database, credential, or private source path. Browser-added custom text must also be synthetic, but it is user-declared and is not automatically de-identified or content-verified.
+The repository ships with three verified fictional fixtures and contains no real case, recording, contact, operations database, credential, or private source path. The browser exposes the full longitudinal fixture; the focused conflict and inference-revision fixtures run through the corpus command. Browser-added custom text must also be synthetic, but it is user-declared and is not automatically de-identified or content-verified.
 
 The privacy audit is pattern-based and is paired with human release review. This prototype supports human review; it is local and single-process, not autonomous diagnosis or medical advice. Read [docs/PRIVACY_REVIEW.md](docs/PRIVACY_REVIEW.md) before publishing any derivative.
 

@@ -23,6 +23,7 @@
           <div class="status-cluster" aria-live="polite">
             <span id="privacyStatus" class="status-pill safe">Synthetic only</span>
             <span id="codexStatus" class="status-pill neutral">Checking Codex…</span>
+            <button id="tourButton" class="button ghost small" type="button" aria-controls="judgeTour">90-second judge tour</button>
             <button id="resetButton" class="button ghost small" type="button">New demo run</button>
           </div>
         </nav>
@@ -46,6 +47,28 @@
       </header>
 
       <main>
+        <section id="judgeTour" class="judge-tour" aria-labelledby="judgeTourTitle">
+          <div class="tour-heading">
+            <div>
+              <p class="kicker">JUDGE TOUR · NO MODEL CALL</p>
+              <h2 id="judgeTourTitle">Verify the governance loop in five visible checks.</h2>
+              <p id="tourNextStep" class="tour-next">Next: leave Replay selected and run the first evidence review.</p>
+            </div>
+            <strong id="tourProgress" class="tour-progress">0 / 5 verified</strong>
+          </div>
+          <ol class="tour-steps">
+            <li data-tour-step="review"><span>01</span><strong>Run Replay</strong><small>Report stays report; unknowns remain explicit.</small></li>
+            <li data-tour-step="answer"><span>02</span><strong>Add expert evidence</strong><small>The AI question stays excluded.</small></li>
+            <li data-tour-step="stale"><span>03</span><strong>See the stale gate</strong><small>New evidence cannot silently reuse an old analysis.</small></li>
+            <li data-tour-step="rounds"><span>04</span><strong>Finish four rounds</strong><small>Later information changes the governed review.</small></li>
+            <li data-tour-step="save"><span>05</span><strong>Save the current analysis</strong><small>No hidden second model call.</small></li>
+          </ol>
+          <p class="corpus-route">
+            Want broader proof? Run <code>python scripts/run_governance_corpus.py</code> for three fictional cases:
+            longitudinal evidence, source-role conflict, and later evidence revising an inference.
+          </p>
+        </section>
+
         <section class="control-deck" aria-label="Demo controls">
           <div class="mode-picker" role="group" aria-label="Analysis mode">
             <button id="replayMode" class="mode-button active" type="button" data-mode="replay">
@@ -150,7 +173,7 @@
             <section class="save-gate" aria-labelledby="saveGateTitle">
               <div>
                 <p class="kicker">FORMAL-SAVE GATE</p>
-                <h3 id="saveGateTitle">The visible reviewed result is the saved result.</h3>
+                <h3 id="saveGateTitle">The current normalized analysis is saved without regeneration.</h3>
               </div>
               <div id="saveGateState" class="gate-state blocked">Blocked</div>
               <ul id="saveBlockers"></ul>

@@ -38,16 +38,16 @@ class ServiceContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ConflictError, "New evidence"):
             self.service.save_reviewed_snapshot()
 
-    def test_save_uses_exact_reviewed_result_without_second_analysis(self) -> None:
+    def test_save_uses_current_normalized_analysis_without_second_analysis(self) -> None:
         project = self.service.analyze("replay")
         self.service.answer_reflection(project["unresolved_questions"][0]["id"], "Client-reported only.")
         reviewed = self.service.analyze("replay")
-        visible = reviewed["latest_analysis"]
+        normalized = reviewed["latest_analysis"]
         analysis_count = reviewed["stats"]["analysis_events"]
         saved = self.service.save_reviewed_snapshot()
         self.assertEqual(analysis_count, saved["stats"]["analysis_events"])
         payload = saved["formal_snapshots"][-1]["payload"]
-        self.assertEqual(visible, payload["reviewed_output"])
+        self.assertEqual(normalized, payload["reviewed_output"])
 
     def test_same_input_reuses_analysis_without_new_event(self) -> None:
         first = self.service.analyze("replay")

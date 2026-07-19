@@ -294,7 +294,7 @@ class ObserveOSService:
             "analysis_event_id": latest_analysis_event_id,
             "evidence_digest": evidence_digest(list(project["evidence"])),
             "reviewed_output": latest,
-            "save_behavior": "Saved the exact visible reviewed result; no second analysis was generated.",
+            "save_behavior": "Saved the current normalized analysis; no second analysis was generated.",
         }
         self.store.append(
             "formal_snapshot_saved",
@@ -303,7 +303,7 @@ class ObserveOSService:
             idempotency_key=f"snapshot:{latest_analysis_event_id}",
         )
         result = self.project()
-        result["action"] = {"type": "snapshot_saved", "message": "Saved the exact reviewed result as a synthetic formal snapshot."}
+        result["action"] = {"type": "snapshot_saved", "message": "Saved the current normalized analysis as a synthetic formal snapshot."}
         return result
 
     def export_bundle(self) -> dict[str, object]:

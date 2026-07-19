@@ -1,0 +1,22 @@
+{
+  "eval_version": "1.0",
+  "fixture": "fixtures/synthetic_source_conflict_case.json",
+  "case_id": "DEMO-CASE-002",
+  "checkpoints": {
+    "round_1": {
+      "question_key": "report-dimension",
+      "summary_contains": "only a client report",
+      "unknown_contains": "Whether the client report referred to effort, symptoms, or observed task performance."
+    },
+    "round_2": {
+      "question_key": "conflict-interpretation",
+      "summary_contains": "preserves two different source claims",
+      "supported_contains": "two hand contacts",
+      "unknown_contains": "Why the two hand contacts occurred"
+    },
+    "final": {
+      "reflection_status": "complete",
+      "can_formal_save": true
+    }
+  }
+}
