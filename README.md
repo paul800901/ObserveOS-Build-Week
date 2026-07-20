@@ -86,6 +86,22 @@ During Build Week, Codex and GPT-5.6 were used to extract that governing idea fr
 
 The development contribution and verifiable Build Week session evidence are described in [docs/BUILD_WEEK_EVIDENCE.md](docs/BUILD_WEEK_EVIDENCE.md).
 
+## Seven-model internal benchmark
+
+The latest fully comparable private evaluation ran seven model routes through the same seven strict, text-only Gold cases: 49 independent, turn-by-turn chats and 462 canonical model calls. The two newest cases in the current nine-case private corpus were added later and are not included in these scores.
+
+| Model route | Average /100 | Range | Sanitized practitioner assessment |
+|---|---:|---:|---|
+| Sol Medium | **91.43** | 87–95 | Most stable evidence boundaries and long-context revision; still requires human review. |
+| Terra Medium | **88.57** | 85–92 | Strong and consistent; effectively tied with Luna Medium at this benchmark's resolution. |
+| Luna Medium | **88.43** | 78–93 | Strong, concise, and source-faithful, with fewer proactive questions in some cases. |
+| Luna XHigh | **86.14** | 75–93 | Strong on shorter cases, but less stable than Medium in the longest case. |
+| Kimi K3 | **68.29** | 58–78 | Found the main thread but needed intensive supervision for invented schedules and mechanism overreach. |
+| GLM-5.2 Max | **62.00** | 49–70 | Frequently promoted working hypotheses into causal explanations. |
+| DeepSeek V4 Pro Thinking | **57.14** | 42–65 | Highest correction burden and strongest long-context error recurrence. |
+
+These are internal workflow-rubric scores, not clinical efficacy scores or a claim about every model capability. See the [full sanitized benchmark table and methodology](docs/SEVEN_MODEL_BENCHMARK.md).
+
 ## Whole-system vision, separate truth layers
 
 ObserveOS can coordinate intake, governed transcription, case reasoning, source-separated knowledge, operations readback, websites and campaigns, and content production. It does **not** merge them into one giant truth bucket. Each domain keeps its own formal source and confirmation boundary; the public prototype implements the reflection loop that governs how evidence crosses into a case output.
